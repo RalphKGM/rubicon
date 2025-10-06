@@ -1,0 +1,43 @@
+package com.gabriel.draw;
+
+import com.gabriel.drawfx.ShapeType;
+import com.gabriel.draw.model.Line;
+import com.gabriel.draw.model.Rectangle;
+import com.gabriel.draw.model.Ellipse;
+import com.gabriel.drawfx.model.Shape;
+
+import java.awt.Color;
+import java.awt.Point;
+
+public enum ShapeMode implements com.gabriel.drawfx.ShapeFactory {
+    LINE(ShapeType.LINE),
+    RECTANGLE(ShapeType.RECTANGLE),
+    ELLIPSE(ShapeType.ELLIPSE),
+    SELECT(null),
+    MOVE(null),
+    SCALE(null);
+
+    private final ShapeType shapeType;
+
+    ShapeMode(ShapeType shapeType) {
+        this.shapeType = shapeType;
+    }
+
+    @Override
+    public Shape createShape(ShapeType type, Point start, Color stroke, Color fill) {
+        switch (type) {
+            case LINE:
+                return new Line(start, start, stroke, fill);
+            case RECTANGLE:
+                return new Rectangle(start, start, stroke, fill);
+            case ELLIPSE:
+                return new Ellipse(start, start, stroke, fill);
+            default:
+                return null;
+        }
+    }
+
+    public Shape createShape(Point start, Color stroke, Color fill) {
+        return createShape(this.shapeType, start, stroke, fill);
+    }
+}

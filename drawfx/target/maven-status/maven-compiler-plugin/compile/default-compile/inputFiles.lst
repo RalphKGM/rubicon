@@ -1,0 +1,15 @@
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/DrawMode.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/ShapeMode.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/command/ActionCommand.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/command/Command.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/command/CommandService.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/command/CreateShapeCommand.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/command/MoveResizeCommand.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/model/Drawing.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/model/SelectionBox.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/model/Shape.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/service/AppService.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/service/MoverService.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/service/RendererService.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/service/ScalerService.java
+/Users/ralphmorales/Downloads/rubicond/drawfx/src/main/java/com/gabriel/drawfx/service/ShapeService.java
