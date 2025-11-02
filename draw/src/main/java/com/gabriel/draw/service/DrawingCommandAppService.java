@@ -1,7 +1,6 @@
 package com.gabriel.draw.service;
 
-import com.gabriel.draw.command.AddShapeCommand;
-import com.gabriel.draw.command.SetDrawModeCommand;
+import com.gabriel.draw.command.*;
 import com.gabriel.drawfx.DrawMode;
 import com.gabriel.drawfx.ShapeMode;
 import com.gabriel.drawfx.command.Command;
@@ -17,9 +16,20 @@ import java.util.List;
 public class DrawingCommandAppService implements AppService {
     public AppService appService;
     protected static AppService drawingCommandAppService = null;
+    
+    private DrawingAppService underlyingService;
 
     protected DrawingCommandAppService(AppService appService){
         this.appService = appService;
+        
+        if (appService instanceof DrawingAppService) {
+            this.underlyingService = (DrawingAppService) appService;
+        }
+    }
+    
+    
+    public DrawingAppService getUnderlyingService() {
+        return underlyingService;
     }
 
     public static AppService getInstance(){
@@ -35,12 +45,45 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void undo() {
-        CommandService.undo();;
+        CommandService.undo();
+        System.out.println("[DrawingCommandAppService] undo completed, attempting UI refresh");
+        
+        if (underlyingService != null && underlyingService.getDrawingView() != null) {
+            System.out.println("[DrawingCommandAppService] underlying drawingView found");
+            try {
+                underlyingService.getDrawingView().repaint();
+                java.awt.Window win = javax.swing.SwingUtilities.getWindowAncestor(underlyingService.getDrawingView());
+                System.out.println("[DrawingCommandAppService] window ancestor: " + win);
+                if (win != null && win instanceof com.gabriel.draw.view.DrawingFrame) {
+                    System.out.println("[DrawingCommandAppService] calling refreshPropertySheet on DrawingFrame");
+                    ((com.gabriel.draw.view.DrawingFrame) win).refreshPropertySheet();
+                }
+            } catch (Exception ex) {
+                
+                ex.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void redo() {
         CommandService.redo();
+        System.out.println("[DrawingCommandAppService] redo completed, attempting UI refresh");
+        
+        if (underlyingService != null && underlyingService.getDrawingView() != null) {
+            System.out.println("[DrawingCommandAppService] underlying drawingView found");
+            try {
+                underlyingService.getDrawingView().repaint();
+                java.awt.Window win = javax.swing.SwingUtilities.getWindowAncestor(underlyingService.getDrawingView());
+                System.out.println("[DrawingCommandAppService] window ancestor: " + win);
+                if (win != null && win instanceof com.gabriel.draw.view.DrawingFrame) {
+                    System.out.println("[DrawingCommandAppService] calling refreshPropertySheet on DrawingFrame");
+                    ((com.gabriel.draw.view.DrawingFrame) win).refreshPropertySheet();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -60,8 +103,9 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void setDrawMode(DrawMode drawMode) {
-        Command command = new SetDrawModeCommand(appService, drawMode);
-        CommandService.ExecuteCommand(command);
+        
+        
+        appService.setDrawMode(drawMode);
     }
 
     @Override
@@ -71,7 +115,9 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void setColor(Color color) {
-        appService.setColor(color);
+        Color prev = appService.getColor();
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.SetColorCommand(appService, prev, color);
+        CommandService.ExecuteCommand(command);
     }
 
     @Override
@@ -81,22 +127,39 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void setFill(Color color) {
-        appService.setFill(color);
+        Color prev = appService.getFill();
+        Command command = new SetFillCommand(appService, prev, color);
+        CommandService.ExecuteCommand(command);
     }
 
     @Override
     public void move(Shape shape, Point start, Point end) {
-        appService.move(shape,start, end);
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.MoveCommand(appService, shape, start, end);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public void move(Point start, Point end) {
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.MoveCommand(appService, null, start, end);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public void scale(Point start, Point end) {
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.ScaleCommand(appService, null, start, end);
+        CommandService.ExecuteCommand(command);
     }
 
     @Override
     public void scale(Shape shape, Point start, Point end) {
-        appService.scale(shape, start, end);
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.ScaleCommand(appService, shape, start, end);
+        CommandService.ExecuteCommand(command);
     }
 
     @Override
     public void scale(Shape shape, Point end) {
-        appService.scale(shape,end);
+        Command command = new ScaleSinglePointCommand(appService, shape, end);
+        CommandService.ExecuteCommand(command);
     }
 
     @Override
@@ -107,7 +170,8 @@ public class DrawingCommandAppService implements AppService {
 
     @Override
     public void delete(Shape shape) {
-        appService.delete(shape);
+        Command command = new DeleteShapeCommand(appService, shape);
+        CommandService.ExecuteCommand(command);
     }
 
     @Override
@@ -141,6 +205,11 @@ public class DrawingCommandAppService implements AppService {
     }
 
     @Override
+    public void search(Point p, boolean single) {
+        appService.search(p, single);
+    }
+
+    @Override
     public void open(String filename) {
         appService.open(filename);
     }
@@ -152,13 +221,8 @@ public class DrawingCommandAppService implements AppService {
     }
 
     @Override
-    public void saveas(String filename) {
-        appService.saveas(filename);
-    }
-
-    @Override
-    public void newDrawing() {
-        appService.newDrawing();
+    public String getFileName() {
+        return appService.getFileName();
     }
 
     @Override
@@ -179,5 +243,208 @@ public class DrawingCommandAppService implements AppService {
     @Override
     public List<Shape> getSelectedShapes() {
         return appService.getSelectedShapes();
+    }
+
+    @Override
+    public void clearSelections(){
+        appService.clearSelections();;
+    }
+
+    @Override
+    public void setThickness(int thickness) {
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.SetIntPropertyCommand(appService, com.gabriel.draw.command.SetIntPropertyCommand.Property.THICKNESS, appService.getThickness(), thickness);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public int getThickness() {
+        return appService.getThickness();
+    }
+
+    @Override
+    public void setXLocation(int xLocation) {
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.SetIntPropertyCommand(appService, com.gabriel.draw.command.SetIntPropertyCommand.Property.X, appService.getXLocation(), xLocation);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public int getXLocation() {
+        return appService.getXLocation();
+    }
+
+    @Override
+    public void setYLocation(int yLocation) {
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.SetIntPropertyCommand(appService, com.gabriel.draw.command.SetIntPropertyCommand.Property.Y, appService.getYLocation(), yLocation);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public int getYLocation() {
+        return appService.getYLocation();
+    }
+
+    @Override
+    public void setWidth(int width) {
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.SetIntPropertyCommand(appService, com.gabriel.draw.command.SetIntPropertyCommand.Property.WIDTH, appService.getWidth(), width);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public int getWidth() {
+        return appService.getWidth();
+    }
+
+    @Override
+    public void setHeight(int height) {
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.SetIntPropertyCommand(appService, com.gabriel.draw.command.SetIntPropertyCommand.Property.HEIGHT, appService.getHeight(), height);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public int getHeight() {
+        return appService.getHeight();
+    }
+
+    @Override
+    public void setImageFilename(String imageFilename) {
+        String prev = appService.getImageFilename();
+        Command command = new SetImageFilenameCommand(appService, prev, imageFilename);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public String getImageFilename() {
+        return appService.getImageFilename();
+    }
+
+    @Override
+    public void setText(String text) {
+        String prev = appService.getText();
+        Command command = new SetTextCommand(appService, prev, text);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public void setFontSize(int fontSize) {
+        
+        Font currentFont = appService.getFont();
+        int prevFontSize = currentFont != null ? currentFont.getSize() : 12;
+        Command command = new SetFontSizeCommand(appService, prevFontSize, fontSize);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public Color getStartColor() {
+        return appService.getStartColor();
+    }
+
+    @Override
+    public void setStartColor(Color color) {
+        Color prev = appService.getStartColor();
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.SetColorCommand(appService, prev, color);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public Color getEndColor() {
+        return appService.getEndColor();
+    }
+
+    @Override
+    public void setEndColor(Color color) {
+        Color prev = appService.getEndColor();
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.SetColorCommand(appService, prev, color);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public boolean isGradient() {
+        return appService.isGradient();
+    }
+
+    @Override
+    public void setIsGradient(boolean yes) {
+        boolean prev = appService.isGradient();
+        Command command = new SetIsGradientCommand(appService, prev, yes);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public boolean isVisible() {
+        return appService.isVisible();
+    }
+
+    @Override
+    public void setIsVisible(boolean yes) {
+        boolean prev = appService.isVisible();
+        Command command = new SetIsVisibleCommand(appService, prev, yes);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public void delete() {
+        Command command = new DeleteSelectedShapesCommand(appService);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public void setStartX(int startx) {
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.SetIntPropertyCommand(appService, com.gabriel.draw.command.SetIntPropertyCommand.Property.STARTX, appService.getStartX(), startx);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public int getStartX() {
+        return appService.getStartX();
+    }
+
+    @Override
+    public void setStarty(int starty) {
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.SetIntPropertyCommand(appService, com.gabriel.draw.command.SetIntPropertyCommand.Property.STARTY, appService.getStarty(), starty);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public int getStarty() {
+        return appService.getStarty();
+    }
+
+    @Override
+    public void setEndx(int endx) {
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.SetIntPropertyCommand(appService, com.gabriel.draw.command.SetIntPropertyCommand.Property.ENDX, appService.getEndx(), endx);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public int getEndx() {
+        return appService.getEndx();
+    }
+
+    @Override
+    public void setEndy(int endy) {
+        com.gabriel.drawfx.command.Command command = new com.gabriel.draw.command.SetIntPropertyCommand(appService, com.gabriel.draw.command.SetIntPropertyCommand.Property.ENDY, appService.getEndy(), endy);
+        CommandService.ExecuteCommand(command);
+    }
+
+    @Override
+    public int getEndy() {
+        return appService.getEndy();
+    }
+
+    @Override
+    public String getText() {
+        return appService.getText();
+    }
+
+    @Override
+    public Font getFont() {
+        return appService.getFont();
+    }
+
+    @Override
+    public void setFont(Font font) {
+        Font prev = appService.getFont();
+        Command command = new SetFontCommand(appService, prev, font);
+        CommandService.ExecuteCommand(command);
     }
 }

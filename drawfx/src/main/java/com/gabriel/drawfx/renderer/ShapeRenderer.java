@@ -1,11 +1,10 @@
-package com.gabriel.drawfx.service;
+package com.gabriel.drawfx.renderer;
 
-import com.gabriel.drawfx.model.Drawing;
 import com.gabriel.drawfx.model.Shape;
 
 import java.awt.*;
 
-public class ShapeRendererService implements RendererService{
+public class ShapeRenderer implements Renderer {
 
     @Override
     public void render(Graphics g,  Shape shape, boolean xor) {
@@ -15,8 +14,13 @@ public class ShapeRendererService implements RendererService{
             int height = shape.getHeight();
             int r = 5;
 
-            if(xor){
-                 g.setXORMode(shape.getColor());
+            if (xor) {
+                java.awt.Color c = shape.getColor();
+                if (c != null) {
+                    g.setXORMode(c);
+                } else {
+                    
+                }
             }
             else {
                 g.setColor(shape.getColor());

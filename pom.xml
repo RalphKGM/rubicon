@@ -11,6 +11,9 @@
 	<modules >
 		<module >drawfx</module >
 		<module >draw</module >
+		<module >batik</module >
+		<module >prop</module >
+		<module >fontchooser</module >
 	</modules >
 
 	<properties >

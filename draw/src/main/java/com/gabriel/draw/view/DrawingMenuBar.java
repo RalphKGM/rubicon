@@ -19,7 +19,7 @@ public class DrawingMenuBar extends JMenuBar {
         super();
         this.actionListener =actionListener;
 
-// Insert the File menu and menuitems
+
 
         JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
@@ -87,14 +87,25 @@ public class DrawingMenuBar extends JMenuBar {
         menuItem.setActionCommand(ActionCommand.ELLIPSE);
         menuItem.addActionListener(actionListener);
 
+        menuItem = new JMenuItem("Picture");
+        menu.add(menuItem);
+        menuItem.setActionCommand(ActionCommand.IMAGE);
+        menuItem.addActionListener(actionListener);
+
+        menuItem = new JMenuItem("Text");
+        menuItem.setActionCommand(ActionCommand.TEXT);
+        menuItem.addActionListener(actionListener);
+        menu.add(menuItem);
+
         menuItem = new JMenuItem("Select");
         menuItem.setActionCommand(ActionCommand.SELECT);
         menuItem.addActionListener(actionListener);
         menu.add(menuItem);
 
+
         add(menu);
 
-        // Properties
+        
         menu = new JMenu("Properties");
         menu.setMnemonic(KeyEvent.VK_P);
 
