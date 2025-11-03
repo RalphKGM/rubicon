@@ -62,9 +62,15 @@ public class DrawingMenuBar extends JMenuBar {
         menu.add(menuItem);
 
         menuItem = new JMenuItem("Redo");
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));;
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
         menuItem.addActionListener(actionListener);
         menuItem.setActionCommand(ActionCommand.REDO);
+        menu.add(menuItem);
+        
+        menuItem = new JMenuItem("Delete");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+        menuItem.setActionCommand(ActionCommand.DELETE);
+        menuItem.addActionListener(actionListener);
         menu.add(menuItem);
 
         add(menu);

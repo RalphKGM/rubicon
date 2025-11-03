@@ -18,11 +18,14 @@ import java.util.Arrays;
 public class PropertySheet extends PropertyPanel {
     PropertyPanel propertyTable;
     private SelectionProperty<ShapeMode> shapeProp;
-    Item<ShapeMode> RectangleItem;
-    Item<ShapeMode> EllipseItem;
-    Item<ShapeMode> LineItem;
-    Item<ShapeMode> TextItem;
-    Item<ShapeMode> SelectItem;
+    
+    // Pre-create items for shape mode selection
+    private final Item<ShapeMode> RectangleItem = new Item<>(ShapeMode.Rectangle, "Rectangle");
+    private final Item<ShapeMode> EllipseItem = new Item<>(ShapeMode.Ellipse, "Ellipse");
+    private final Item<ShapeMode> LineItem = new Item<>(ShapeMode.Line, "Line");
+    private final Item<ShapeMode> TextItem = new Item<>(ShapeMode.Text, "Text");
+    private final Item<ShapeMode> SelectItem = new Item<>(ShapeMode.Select, "Select");
+    private final Item<ShapeMode> ImageItem = new Item<>(ShapeMode.Image, "Image");
 
 
     public void setShapeProp(ShapeMode shapeMode ){
@@ -35,6 +38,10 @@ public class PropertySheet extends PropertyPanel {
             selectionComponent.setCellEditorValue(LineItem);
         } else if (shapeMode == ShapeMode.Select) {
             selectionComponent.setCellEditorValue(SelectItem);
+        } else if (shapeMode == ShapeMode.Image) {
+            selectionComponent.setCellEditorValue(ImageItem);
+        } else if (shapeMode == ShapeMode.Text) {
+            selectionComponent.setCellEditorValue(TextItem);
         }
     }
 
@@ -53,57 +60,52 @@ public class PropertySheet extends PropertyPanel {
     }
 
     public void populateTable(AppService appService) {
-    propertyTable = this;
-
-    
-    
-    propertyTable.clear();
-        Shape shape  = appService.getSelectedShape();
+        propertyTable = this;
+        propertyTable.clear();
+        Shape shape = appService.getSelectedShape();
         String objectType;
-        if ( shape == null) {
+        ShapeMode currentMode = appService.getShapeMode();
+        
+        if (shape == null) {
             objectType = "Drawing";
-        }
-        else {
+        } else {
+            // For any selected shape, show generic object type "Shape"
             objectType = "Shape";
+            // Update currentMode based on the selected shape type so the "Current Shape" selector reflects it
+            if (shape instanceof com.gabriel.draw.model.Image) {
+                currentMode = ShapeMode.Image;
+            } else if (shape instanceof com.gabriel.draw.model.Rectangle) {
+                currentMode = ShapeMode.Rectangle;
+            } else if (shape instanceof com.gabriel.draw.model.Ellipse) {
+                currentMode = ShapeMode.Ellipse;
+            } else if (shape instanceof com.gabriel.draw.model.Line) {
+                currentMode = ShapeMode.Line;
+            } else if (shape instanceof com.gabriel.draw.model.Text) {
+                currentMode = ShapeMode.Text;
+            }
         }
 
+        // Add basic properties
         StringProperty targetProp = new StringProperty("Object Type", objectType);
         propertyTable.addProperty(targetProp);
 
-    RectangleItem = new Item<ShapeMode>(ShapeMode.Rectangle, "Rectangle");
-    EllipseItem = new Item<ShapeMode>(ShapeMode.Ellipse, "Ellipse");
-    LineItem =    new Item<ShapeMode>(ShapeMode.Line, "Line");
-    SelectItem =    new Item<ShapeMode>(ShapeMode.Select, "Select");
-    TextItem =    new Item<ShapeMode>(ShapeMode.Text, "Text");
-    shapeProp = new SelectionProperty<ShapeMode>(
-        "Current Shape",
-        new ArrayList<>(Arrays.asList(
-            RectangleItem,
-            EllipseItem,
-            LineItem,
-            SelectItem,
-            TextItem
-        ))
-    );
-
+        // Shape mode selection (single property)
+        shapeProp = new SelectionProperty<ShapeMode>(
+            "Current Shape",
+            new ArrayList<>(Arrays.asList(
+                RectangleItem,
+                EllipseItem,
+                LineItem,
+                ImageItem,
+                TextItem,
+                SelectItem
+            ))
+        );
         propertyTable.addProperty(shapeProp);
 
-        SelectionCellComponent  selectionComponent =  propertyTable.getSelectionCellComponent();
-        ShapeMode shapeMode = appService.getShapeMode();
-        if(shapeMode == ShapeMode.Rectangle) {
-            selectionComponent.setCellEditorValue(RectangleItem);
-        }
-        else if(shapeMode == ShapeMode.Ellipse) {
-            selectionComponent.setCellEditorValue(EllipseItem);
-        }
-        else if(shapeMode == ShapeMode.Line) {
-            selectionComponent.setCellEditorValue(LineItem);
-        }
-        else if(shapeMode == ShapeMode.Select) {
-            selectionComponent.setCellEditorValue(SelectItem);
-        }
-    
-    shapeProp.setValue(shapeMode);
+        // Set selection editor to reflect current mode (based on selected shape or app state)
+        setShapeProp(currentMode);
+        shapeProp.setValue(currentMode);
 
 
         ColorProperty currentColorProp = new ColorProperty("Fore color", appService.getColor());

@@ -15,6 +15,29 @@ public class Drawing {
     private String imageFilename = null;
     private Color color;
     private Color fill;
+    private List<DrawingChangeListener> changeListeners = new ArrayList<>();
+
+    public interface DrawingChangeListener {
+        void onDrawingChanged();
+    }
+
+    public void addChangeListener(DrawingChangeListener listener) {
+        changeListeners.add(listener);
+    }
+
+    public void removeChangeListener(DrawingChangeListener listener) {
+        changeListeners.remove(listener);
+    }
+
+    protected void notifyDrawingChanged() {
+        for (DrawingChangeListener listener : changeListeners) {
+            listener.onDrawingChanged();
+        }
+    }
+
+    public void fireDrawingChanged() {
+        notifyDrawingChanged();
+    }
 
     private Color startColor = Color.WHITE;
     private Color endColor = Color.RED;

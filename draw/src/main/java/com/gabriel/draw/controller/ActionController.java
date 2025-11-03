@@ -37,7 +37,13 @@ public class ActionController implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         String cmd = e.getActionCommand();
-        if (ActionCommand.UNDO.equals(cmd)) {
+        if (ActionCommand.DELETE.equals(cmd)) {
+            appService.delete();
+            if (component != null) component.repaint();
+            if (frame != null && frame instanceof com.gabriel.draw.view.DrawingFrame) {
+                ((com.gabriel.draw.view.DrawingFrame) frame).refreshPropertySheet();
+            }
+        } else if (ActionCommand.UNDO.equals(cmd)) {
             appService.undo();
             
             if (component != null) component.repaint();
@@ -64,7 +70,14 @@ public class ActionController implements ActionListener {
             }
             appService.setShapeMode(ShapeMode.Image);
         } else if (ActionCommand.IMAGEFILE.equals(cmd)) { 
-            imageFileService.setImage(drawing);
+            // Check if we have a selected image shape
+            if (drawing.getSelectedShape() != null && drawing.getSelectedShape() instanceof com.gabriel.draw.model.Image) {
+                // If we have a selected image, update its filename
+                imageFileService.setImageForSelectedShape(drawing);
+            } else {
+                // If no image selected, just set the global image filename
+                imageFileService.setImage(drawing);
+            }
         } else if (ActionCommand.COLOR.equals(cmd)) {
             Color color = JColorChooser.showDialog(component, "Select color", appService.getColor());
             appService.setColor(color);

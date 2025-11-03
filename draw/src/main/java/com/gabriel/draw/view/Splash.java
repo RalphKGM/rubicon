@@ -21,7 +21,7 @@ public class Splash extends JPanel implements MouseListener {
     public Splash() {
         try {
             imageLoader = new ImageLoader();
-            image = imageLoader.loadImage("/nette1440_800.png");
+            image = imageLoader.loadImage("/net2.png");
 
             height = image.getHeight();
             width = image.getWidth();

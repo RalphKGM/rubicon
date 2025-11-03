@@ -3,63 +3,67 @@ package com.gabriel.draw.controller;
 import com.gabriel.property.event.PropertyEventAdapter;
 import com.gabriel.property.property.Property;
 import com.gabriel.drawfx.service.AppService;
-
+import com.gabriel.draw.service.DrawingCommandAppService;
 import java.awt.*;
 
 public class PropertyEventListener extends PropertyEventAdapter {
-    private AppService appService;
+    private final AppService appService;
+    private final DrawingCommandAppService commandService;
 
     public PropertyEventListener(AppService appService) {
         this.appService = appService;
+        // Get or create the command service wrapper
+        this.commandService = (DrawingCommandAppService) DrawingCommandAppService.getInstance(appService);
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void onPropertyUpdated(Property property) {
         System.out.println("[PropertyEventListener] property updated: " + property.getName() + " -> " + property.getValue());
         if (property.getName().equals("Fill color")) {
-            appService.setFill((Color) property.getValue());
+            commandService.setFill((Color) property.getValue());
         } else if (property.getName().equals("Fore color")) {
-            appService.setColor ((Color) property.getValue());
+            commandService.setColor((Color) property.getValue());
         } else if (property.getName().equals("X Location")) {
-            appService.setXLocation((int) property.getValue());
+            commandService.setXLocation((int) property.getValue());
         } else if (property.getName().equals("Y Location")) {
-            appService.setYLocation((int) property.getValue());
+            commandService.setYLocation((int) property.getValue());
         } else if (property.getName().equals("Width")) {
-            appService.setWidth((int) property.getValue());
+            commandService.setWidth((int) property.getValue());
         } else if (property.getName().equals("Height")) {
-            appService.setHeight((int) property.getValue());
+            commandService.setHeight((int) property.getValue());
         } else if (property.getName().equals("Line Thickness")) {
-            appService.setThickness((int) property.getValue());
+            commandService.setThickness((int) property.getValue());
         } else if (property.getName().equals("Text")) {
-            appService.setText((String)property.getValue());
+            commandService.setText((String)property.getValue());
     } else if (property.getName().equals("Start color")) {
-            appService.setStartColor((Color) property.getValue());
+            commandService.setStartColor((Color) property.getValue());
         } else if (property.getName().equals("End color")) {
-            appService.setEndColor((Color) property.getValue());
+            commandService.setEndColor((Color) property.getValue());
         } else if (property.getName().equals("IsGradient")) {
-            appService.setIsGradient((Boolean) property.getValue());
+            commandService.setIsGradient((Boolean) property.getValue());
         } else if (property.getName().equals("IsVisible")) {
-            appService.setIsVisible((Boolean) property.getValue());
+            commandService.setIsVisible((Boolean) property.getValue());
         } else if (property.getName().equals("Start x")) {
-            appService.setStartX((int) property.getValue());
+            commandService.setStartX((int) property.getValue());
         } else if (property.getName().equals("Start y")) {
-            appService.setStarty((int) property.getValue());
+            commandService.setStarty((int) property.getValue());
         } else if (property.getName().equals("End x")) {
-            appService.setEndx((int) property.getValue());
+            commandService.setEndx((int) property.getValue());
         } else if (property.getName().equals("End y")) {
-            appService.setEndy((int) property.getValue());
+            commandService.setEndy((int) property.getValue());
         } else if (property.getName().equals("Font family")) {
             Font font = appService.getFont();
             Font newFont = new Font((String) property.getValue(), font.getStyle(), font.getSize());
-            appService.setFont(newFont);
+            commandService.setFont(newFont);
         } else if (property.getName().equals("Font style")) {
             Font font = appService.getFont();
-            Font newFont = new Font( font.getFamily(), (int)property.getValue(), font.getSize());
-            appService.setFont(newFont);
+            Font newFont = new Font(font.getFamily(), (int)property.getValue(), font.getSize());
+            commandService.setFont(newFont);
         } else if (property.getName().equals("Font size")) {
             Font font = appService.getFont();
-            Font newFont = new Font(font.getFamily(),font.getStyle(), (int) property.getValue());
-            appService.setFont(newFont);
+            Font newFont = new Font(font.getFamily(), font.getStyle(), (int) property.getValue());
+            commandService.setFont(newFont);
         }
     }
 }

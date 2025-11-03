@@ -35,6 +35,7 @@ public interface AppService {
     void create(Shape shape);
     void delete(Shape shape);
 
+
     void close();
 
     Drawing getDrawing();

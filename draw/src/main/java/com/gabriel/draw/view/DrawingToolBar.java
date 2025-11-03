@@ -27,7 +27,7 @@ public class DrawingToolBar extends JToolBar {
 
         
         setPreferredSize(new Dimension(200, 30));
-        setBackground(Color.GREEN);
+       // setBackground(Color.GREEN);
     }
 
     protected void addButtons() {
@@ -44,9 +44,6 @@ public class DrawingToolBar extends JToolBar {
         button = makeNavigationButton("text",ActionCommand.TEXT,"Add a text",ActionCommand.TEXT);
         add(button);
 
-        button = makeNavigationButton("image",ActionCommand.IMAGE,"Add an  image",ActionCommand.IMAGE);
-        add(button);
-
         button = makeNavigationButton("select",ActionCommand.SELECT,"Switch to select",ActionCommand.SELECT);
         add(button);
 
@@ -56,7 +53,9 @@ public class DrawingToolBar extends JToolBar {
         button = makeNavigationButton("font",ActionCommand.FONT,"Select another font ",ActionCommand.FONT);
         add(button);
 
-        
+        button = makeNavigationButton("delete",ActionCommand.DELETE,"Delete selected items",ActionCommand.DELETE);
+        add(button);
+
         addSeparator();
 
     
@@ -79,10 +78,10 @@ public class DrawingToolBar extends JToolBar {
         String toolTipText,
         String altText) {
         
-        String imgLocation = "images/"
+        String imgLocation = "icons/"
                 + imageName
                 + ".png";
-        URL imageURL = DrawingToolBar.class.getResource(imgLocation);
+        URL imageURL = getClass().getClassLoader().getResource(imgLocation);
 
         
         JButton button = new JButton();
@@ -90,8 +89,10 @@ public class DrawingToolBar extends JToolBar {
         button.setToolTipText(toolTipText);
         button.addActionListener(actionListener);
 
-        if (imageURL != null) {                      
-            button.setIcon(new ImageIcon(imageURL, altText));
+        if (imageURL != null) {
+            ImageIcon icon = new ImageIcon(imageURL);
+            Image scaled = icon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+            button.setIcon(new ImageIcon(scaled));
         } else {                                     
             button.setText(altText);
             System.err.println("Resource not found: " + imgLocation);

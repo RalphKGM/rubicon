@@ -230,6 +230,16 @@ public class DrawingAppService implements AppService {
         for(Shape shape : selectedShapes){
             if(shape.equals(selectedShape)){
                 shape.setSelected(true);
+                // Update shape mode based on selected shape type
+                if (shape instanceof com.gabriel.draw.model.Rectangle) {
+                    drawing.setShapeMode(ShapeMode.Rectangle);
+                } else if (shape instanceof com.gabriel.draw.model.Ellipse) {
+                    drawing.setShapeMode(ShapeMode.Ellipse);
+                } else if (shape instanceof com.gabriel.draw.model.Line) {
+                    drawing.setShapeMode(ShapeMode.Line);
+                } else if (shape instanceof com.gabriel.draw.model.Text) {
+                    drawing.setShapeMode(ShapeMode.Text);
+                }
             }
             else {
                 shape.setSelected(false);
